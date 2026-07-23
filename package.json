@@ -1,5 +1,5 @@
 {
-  "name": "nestjs-project-template",
+  "name": "zwiio-server",
   "version": "1.2.0",
   "description": "MongoDB-first NestJS API template with Twilio Verify SMS authentication.",
   "author": "brianmuks",

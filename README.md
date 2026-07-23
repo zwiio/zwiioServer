@@ -1,7 +1,7 @@
-# NestJS Project Template
+# zwiioServer
 
 A MongoDB-first NestJS REST API starter for the
-[`nextjs-project-template`](https://github.com/brianmuks/nextjs-project-template)
+[`zwiio`](https://github.com/zwiio/zwiio)
 frontend. It implements phone-number sign-in with Twilio Verify SMS, JWT
 access tokens, refresh-token sessions, Swagger docs, Docker, tests, and CI.
 
@@ -26,7 +26,7 @@ PostgreSQL, TypeORM, and social-auth providers are intentionally not included.
 Select **Use this template** on GitHub, or create a repository with GitHub CLI:
 
 ```bash
-gh repo create my-api --template brianmuks/nestjs-project-template --private --clone
+gh repo create my-api --template zwiio/zwiioServer --private --clone
 cd my-api
 nvm use
 npm install

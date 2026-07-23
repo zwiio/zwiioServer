@@ -1,7 +1,7 @@
 # Introduction
 
 This API template pairs naturally with
-[`nextjs-project-template`](https://github.com/brianmuks/nextjs-project-template).
+[`zwiio`](https://github.com/zwiio/zwiio).
 It favors a simple mobile-friendly login experience: enter a phone number,
 receive a Twilio Verify SMS code, submit the code, and receive application JWT
 tokens.
