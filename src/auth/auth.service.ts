@@ -29,6 +29,7 @@ import { StatusEnum } from '../statuses/statuses.enum';
 import { User } from '../users/domain/user';
 import { TwilioVerifyService } from './twilio-verify.service';
 import { AuthPhoneVerifyOtpDto } from './dto/auth-phone-verify-otp.dto';
+import { FirebaseAuthService } from './firebase-auth.service';
 
 @Injectable()
 export class AuthService {
@@ -39,6 +40,7 @@ export class AuthService {
     private readonly mailService: MailService,
     private readonly configService: ConfigService<AllConfigType>,
     private readonly twilioVerifyService: TwilioVerifyService,
+    private readonly firebaseAuthService: FirebaseAuthService,
   ) {}
 
   async validateLogin(loginDto: AuthEmailLoginDto): Promise<LoginResponseDto> {
@@ -151,6 +153,50 @@ export class AuthService {
           status: { id: StatusEnum.active },
         })) ?? user;
     }
+
+    return this.createSessionResponse(user);
+  }
+
+  async validateFirebaseLogin(idToken: string): Promise<LoginResponseDto> {
+    const decodedToken = await this.firebaseAuthService.verifyIdToken(idToken);
+    const email = decodedToken.email?.toLowerCase() ?? null;
+    let user = await this.usersService.findByFirebaseUid(decodedToken.uid);
+
+    if (user) {
+      if (user.status?.id?.toString() !== StatusEnum.active.toString()) {
+        throw new UnauthorizedException({
+          status: HttpStatus.UNAUTHORIZED,
+          errors: {
+            user: 'inactive',
+          },
+        });
+      }
+
+      return this.createSessionResponse(user);
+    }
+
+    if (email) {
+      const existingEmailUser = await this.usersService.findByEmail(email);
+
+      if (existingEmailUser) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            email: 'alreadyExistsWithoutFirebaseUid',
+          },
+        });
+      }
+    }
+
+    user = await this.usersService.create({
+      email,
+      firebaseUid: decodedToken.uid,
+      firstName: decodedToken.name ?? null,
+      lastName: null,
+      provider: AuthProvidersEnum.firebase,
+      role: { id: RoleEnum.user },
+      status: { id: StatusEnum.active },
+    });
 
     return this.createSessionResponse(user);
   }

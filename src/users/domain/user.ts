@@ -32,6 +32,12 @@ export class User {
   @Expose({ groups: ['me', 'admin'] })
   phoneVerifiedAt?: Date | null;
 
+  @ApiPropertyOptional({
+    type: String,
+  })
+  @Expose({ groups: ['me', 'admin'] })
+  firebaseUid?: string | null;
+
   @Exclude({ toPlainOnly: true })
   password?: string;
 

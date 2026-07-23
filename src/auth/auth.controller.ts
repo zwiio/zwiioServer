@@ -25,6 +25,7 @@ import { AuthResetPasswordDto } from './dto/auth-reset-password.dto';
 import { AuthUpdateDto } from './dto/auth-update.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthRegisterLoginDto } from './dto/auth-register-login.dto';
+import { AuthFirebaseLoginDto } from './dto/auth-firebase-login.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { NullableType } from '../utils/types/nullable.type';
 import { User } from '../users/domain/user';
@@ -51,6 +52,20 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   public login(@Body() loginDto: AuthEmailLoginDto): Promise<LoginResponseDto> {
     return this.service.validateLogin(loginDto);
+  }
+
+  @SerializeOptions({
+    groups: ['me'],
+  })
+  @Post('firebase/login')
+  @ApiOkResponse({
+    type: LoginResponseDto,
+  })
+  @HttpCode(HttpStatus.OK)
+  public firebaseLogin(
+    @Body() loginDto: AuthFirebaseLoginDto,
+  ): Promise<LoginResponseDto> {
+    return this.service.validateFirebaseLogin(loginDto.idToken);
   }
 
   @Post('phone/request-otp')

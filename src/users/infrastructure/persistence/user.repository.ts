@@ -26,6 +26,9 @@ export abstract class UserRepository {
   abstract findByPhoneNumber(
     phoneNumber: User['phoneNumber'],
   ): Promise<NullableType<User>>;
+  abstract findByFirebaseUid(
+    firebaseUid: User['firebaseUid'],
+  ): Promise<NullableType<User>>;
   abstract update(
     id: User['id'],
     payload: DeepPartial<User>,

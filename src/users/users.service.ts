@@ -71,6 +71,25 @@ export class UsersService {
       phoneNumber = createUserDto.phoneNumber;
     }
 
+    let firebaseUid: string | null | undefined = undefined;
+
+    if (createUserDto.firebaseUid) {
+      const userObject = await this.usersRepository.findByFirebaseUid(
+        createUserDto.firebaseUid,
+      );
+      if (userObject) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            firebaseUid: 'firebaseUidAlreadyExists',
+          },
+        });
+      }
+      firebaseUid = createUserDto.firebaseUid;
+    } else if (createUserDto.firebaseUid === null) {
+      firebaseUid = null;
+    }
+
     let photo: FileType | null | undefined = undefined;
 
     if (createUserDto.photo?.id) {
@@ -138,6 +157,7 @@ export class UsersService {
       email: email,
       phoneNumber,
       phoneVerifiedAt: createUserDto.phoneVerifiedAt ?? null,
+      firebaseUid,
       password: password,
       photo: photo,
       role: role,
@@ -178,6 +198,12 @@ export class UsersService {
     phoneNumber: User['phoneNumber'],
   ): Promise<NullableType<User>> {
     return this.usersRepository.findByPhoneNumber(phoneNumber);
+  }
+
+  findByFirebaseUid(
+    firebaseUid: User['firebaseUid'],
+  ): Promise<NullableType<User>> {
+    return this.usersRepository.findByFirebaseUid(firebaseUid);
   }
 
   async update(
@@ -238,6 +264,27 @@ export class UsersService {
       phoneNumber = updateUserDto.phoneNumber;
     } else if (updateUserDto.phoneNumber === null) {
       phoneNumber = null;
+    }
+
+    let firebaseUid: string | null | undefined = undefined;
+
+    if (updateUserDto.firebaseUid) {
+      const userObject = await this.usersRepository.findByFirebaseUid(
+        updateUserDto.firebaseUid,
+      );
+
+      if (userObject && userObject.id !== id) {
+        throw new UnprocessableEntityException({
+          status: HttpStatus.UNPROCESSABLE_ENTITY,
+          errors: {
+            firebaseUid: 'firebaseUidAlreadyExists',
+          },
+        });
+      }
+
+      firebaseUid = updateUserDto.firebaseUid;
+    } else if (updateUserDto.firebaseUid === null) {
+      firebaseUid = null;
     }
 
     let photo: FileType | null | undefined = undefined;
@@ -307,6 +354,7 @@ export class UsersService {
       email,
       phoneNumber,
       phoneVerifiedAt: updateUserDto.phoneVerifiedAt,
+      firebaseUid,
       password,
       photo,
       role,

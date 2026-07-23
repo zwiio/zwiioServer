@@ -86,6 +86,15 @@ export class UsersDocumentRepository implements UserRepository {
     return userObject ? UserMapper.toDomain(userObject) : null;
   }
 
+  async findByFirebaseUid(
+    firebaseUid: User['firebaseUid'],
+  ): Promise<NullableType<User>> {
+    if (!firebaseUid) return null;
+
+    const userObject = await this.usersModel.findOne({ firebaseUid });
+    return userObject ? UserMapper.toDomain(userObject) : null;
+  }
+
   async update(id: User['id'], payload: Partial<User>): Promise<User | null> {
     const clonedPayload = { ...payload };
     delete clonedPayload.id;

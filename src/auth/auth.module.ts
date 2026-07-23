@@ -10,6 +10,7 @@ import { MailModule } from '../mail/mail.module';
 import { SessionModule } from '../session/session.module';
 import { UsersModule } from '../users/users.module';
 import { TwilioVerifyService } from './twilio-verify.service';
+import { FirebaseAuthService } from './firebase-auth.service';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { TwilioVerifyService } from './twilio-verify.service';
   providers: [
     AuthService,
     TwilioVerifyService,
+    FirebaseAuthService,
     JwtStrategy,
     JwtRefreshStrategy,
     AnonymousStrategy,

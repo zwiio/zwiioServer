@@ -14,6 +14,7 @@ export class UserMapper {
     domainEntity.email = raw.email;
     domainEntity.phoneNumber = raw.phoneNumber;
     domainEntity.phoneVerifiedAt = raw.phoneVerifiedAt;
+    domainEntity.firebaseUid = raw.firebaseUid;
     domainEntity.password = raw.password;
     domainEntity.provider = raw.provider;
     domainEntity.firstName = raw.firstName;
@@ -71,6 +72,7 @@ export class UserMapper {
     persistenceSchema.email = domainEntity.email;
     persistenceSchema.phoneNumber = domainEntity.phoneNumber;
     persistenceSchema.phoneVerifiedAt = domainEntity.phoneVerifiedAt;
+    persistenceSchema.firebaseUid = domainEntity.firebaseUid;
     persistenceSchema.password = domainEntity.password;
     persistenceSchema.provider = domainEntity.provider;
     persistenceSchema.firstName = domainEntity.firstName;

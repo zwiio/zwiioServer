@@ -5,6 +5,7 @@ import { FilesModule } from './files/files.module';
 import { AuthModule } from './auth/auth.module';
 import databaseConfig from './database/config/database.config';
 import authConfig from './auth/config/auth.config';
+import firebaseConfig from './auth/config/firebase.config';
 import twilioConfig from './auth/config/twilio.config';
 import appConfig from './config/app.config';
 import mailConfig from './mail/config/mail.config';
@@ -33,6 +34,7 @@ const infrastructureDatabaseModule = MongooseModule.forRootAsync({
       load: [
         databaseConfig,
         authConfig,
+        firebaseConfig,
         twilioConfig,
         appConfig,
         mailConfig,

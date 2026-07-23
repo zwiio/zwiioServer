@@ -1,4 +1,18 @@
-import { UnauthorizedException } from '@nestjs/common';
+import {
+  UnauthorizedException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
+
+jest.mock('firebase-admin/app', () => ({
+  cert: jest.fn(),
+  getApps: jest.fn(() => []),
+  initializeApp: jest.fn(() => ({ name: 'test-firebase-app' })),
+}));
+
+jest.mock('firebase-admin/auth', () => ({
+  getAuth: jest.fn(() => ({ verifyIdToken: jest.fn() })),
+}));
+
 import { AuthService } from './auth.service';
 import { AuthProvidersEnum } from './auth-providers.enum';
 import { RoleEnum } from '../roles/roles.enum';
@@ -24,6 +38,8 @@ describe('AuthService phone OTP login', () => {
   };
   const usersService = {
     findByPhoneNumber: jest.fn(),
+    findByFirebaseUid: jest.fn(),
+    findByEmail: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
   };
@@ -46,6 +62,9 @@ describe('AuthService phone OTP login', () => {
     sendSmsVerification: jest.fn(),
     isVerificationApproved: jest.fn(),
   };
+  const firebaseAuthService = {
+    verifyIdToken: jest.fn(),
+  };
 
   let service: AuthService;
 
@@ -58,6 +77,7 @@ describe('AuthService phone OTP login', () => {
       {} as never,
       configService as never,
       twilioVerifyService as never,
+      firebaseAuthService as never,
     );
   });
 
@@ -108,6 +128,61 @@ describe('AuthService phone OTP login', () => {
     ).rejects.toBeInstanceOf(UnauthorizedException);
 
     expect(usersService.findByPhoneNumber).not.toHaveBeenCalled();
+    expect(sessionService.create).not.toHaveBeenCalled();
+  });
+
+  it('should create a Firebase user and application session from a verified ID token', async () => {
+    firebaseAuthService.verifyIdToken.mockResolvedValue({
+      uid: 'firebase-user-id',
+      email: 'tester@example.com',
+      name: 'Tester',
+    });
+    usersService.findByFirebaseUid.mockResolvedValue(null);
+    usersService.findByEmail.mockResolvedValue(null);
+    usersService.create.mockResolvedValue({
+      ...user,
+      email: 'tester@example.com',
+      firebaseUid: 'firebase-user-id',
+      provider: AuthProvidersEnum.firebase,
+    });
+    sessionService.create.mockResolvedValue({ id: 'session-id' });
+    jwtService.signAsync
+      .mockResolvedValueOnce('access-token')
+      .mockResolvedValueOnce('refresh-token');
+
+    const result = await service.validateFirebaseLogin('firebase-id-token');
+
+    expect(usersService.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: 'tester@example.com',
+        firebaseUid: 'firebase-user-id',
+        provider: AuthProvidersEnum.firebase,
+        status: { id: StatusEnum.active },
+      }),
+    );
+    expect(result).toMatchObject({
+      token: 'access-token',
+      refreshToken: 'refresh-token',
+    });
+  });
+
+  it('should reject Firebase login when the email belongs to an unlinked user', async () => {
+    firebaseAuthService.verifyIdToken.mockResolvedValue({
+      uid: 'firebase-user-id',
+      email: 'tester@example.com',
+    });
+    usersService.findByFirebaseUid.mockResolvedValue(null);
+    usersService.findByEmail.mockResolvedValue({
+      ...user,
+      email: 'tester@example.com',
+      provider: AuthProvidersEnum.email,
+    });
+
+    await expect(
+      service.validateFirebaseLogin('firebase-id-token'),
+    ).rejects.toBeInstanceOf(UnprocessableEntityException);
+
+    expect(usersService.create).not.toHaveBeenCalled();
     expect(sessionService.create).not.toHaveBeenCalled();
   });
 });

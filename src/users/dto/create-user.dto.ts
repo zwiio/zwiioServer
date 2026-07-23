@@ -10,6 +10,7 @@ import {
   IsDate,
   IsNotEmpty,
   IsOptional,
+  IsString,
   Matches,
   MinLength,
 } from 'class-validator';
@@ -35,6 +36,11 @@ export class CreateUserDto {
   @Type(() => Date)
   @IsDate()
   phoneVerifiedAt?: Date | null;
+
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
+  firebaseUid?: string | null;
 
   @ApiProperty()
   @MinLength(6)

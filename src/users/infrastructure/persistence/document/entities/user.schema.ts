@@ -33,6 +33,11 @@ export class UserSchemaClass extends EntityDocumentHelper {
   })
   phoneVerifiedAt?: Date | null;
 
+  @Prop({
+    type: String,
+  })
+  firebaseUid?: string | null;
+
   @Prop()
   password?: string;
 
@@ -90,6 +95,13 @@ UserSchema.index(
   {
     unique: true,
     partialFilterExpression: { phoneNumber: { $type: 'string' } },
+  },
+);
+UserSchema.index(
+  { firebaseUid: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { firebaseUid: { $type: 'string' } },
   },
 );
 UserSchema.index({ 'role._id': 1 });
