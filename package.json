@@ -5,7 +5,7 @@
   "author": "brianmuks",
   "private": true,
   "license": "MIT",
-  "packageManager": "npm@11.13.0",
+  "packageManager": "npm@>=8.0.0 <12.0.0",
   "scripts": {
     "preinstall": "node -e \"const ua = process.env.npm_config_user_agent || ''; if (!ua.startsWith('npm/')) { console.error('Use npm for this project. Run npm ci to install dependencies.'); process.exit(1); }\"",
     "seed:create:document": "hygen seeds create-document",
